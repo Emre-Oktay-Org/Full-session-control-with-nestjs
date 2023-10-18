@@ -9,9 +9,11 @@ export class AuthController {
         private authService: AuthService
     ) { }
 
-    @Post("/")
+    @Post("signup")
     async signup(@Body() data: Prisma.UserCreateInput): Promise<any> {
         return await this.authService.signup(data);
     }
 
+    @Post("signin")
+    async signin(){}
 }
