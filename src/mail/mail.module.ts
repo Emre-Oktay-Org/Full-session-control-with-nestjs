@@ -9,14 +9,14 @@ import { join } from 'path';
     MailerModule.forRoot({
       transport: {
         host: process.env.MAIL_HOST,
-        secure: false,
+        secure: true,
         auth: {
           user: process.env.MAIL_USER,
           pass: process.env.MAIL_PASS,
         },
       },
       defaults: {
-        from: '"No Reply" <test@test.com',
+        from: `from mail <${process.env.MAIL_USER}>`,
       },
       template: {
         dir: join(__dirname, 'templates'),

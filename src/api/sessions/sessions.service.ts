@@ -21,7 +21,7 @@ export class SessionsService {
 
         const userr = await this.prisma.user.findUnique({ where: { email } });
 
-        if (userr.active == false) {
+        if (userr.email_confirmed == false) {
             throw new ApiException(ApiEc.NotAccept)
         }
 

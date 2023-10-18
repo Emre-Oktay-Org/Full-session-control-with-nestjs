@@ -7,28 +7,32 @@ import { verify } from 'crypto';
 
 @Injectable()
 export class UserService {
-    constructor(
-        private prisma: PrismaService,
-        private credsService: CredsService) { }
+  constructor(
+    private prisma: PrismaService,
+    private credsService: CredsService,
+  ) {}
 
-    async getUserByEmail(email: string): Promise<any> {
-        return await this.prisma.user.findUnique({ where: { email } });
+  async getUserByEmail(email: string): Promise<any> {
+    return await this.prisma.user.findUnique({ where: { email } });
+  }
+
+  async createUserByEmail(data: Prisma.UserCreateInput): Promise<any> {
+    const { firstName, lastName, email, password } = data;
+
+    const user = await this.getUserByEmail(email);
+    if (user) {
+      throw new ApiException(ApiEc.EmailAlreadyRegistered);
     }
 
-    async createUserByEmail(data: Prisma.UserCreateInput): Promise<any> {
-        const { firstName, lastName, email, password } = data;
+    data.password = await this.credsService.passwordHash(password);
+    const newUser = await this.prisma.user.create({
+      data,
+    });
 
-        const user = await this.getUserByEmail(email);
-        if (user) {
-            throw new ApiException(ApiEc.EmailAlreadyRegistered);
-        }
+    return newUser;
+  }
 
-        data.password = await this.credsService.passwordHash(password)
-        const newUser = await this.prisma.user.create({
-            data
-        });
-
-        return newUser;
-
-    }
+  async updateUserById(id: number, data: Prisma.UserUpdateInput): Promise<any> {
+    return await this.prisma.user.update({ where: { id }, data });
+  }
 }

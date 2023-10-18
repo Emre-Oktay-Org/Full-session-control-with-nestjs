@@ -20,6 +20,6 @@ model User {
   lastName  String     @db.VarChar(25)
   email     String     @unique
   password  String
-  active    Boolean    @default(false)
+  email_confirmed    Boolean    @default(false)
   status    UserStatus @default(USER)
 }
