@@ -3,6 +3,7 @@ import { UserService } from '../user/user.service';
 import { ApiEc, ApiException } from 'src/exceptions';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CredsService } from 'src/services/creds/creds.service';
+import { SessionCreateDto } from './dto';
 
 @Injectable()
 export class SessionsService {
@@ -13,7 +14,8 @@ export class SessionsService {
         private credsService: CredsService
     ) { }
 
-    async createUserSession(user) {
+    async createUserSession(user: SessionCreateDto) {
+
         const { email, password } = user;
         if (!(await this.userService.getUserByEmail(email))) {
             throw new ApiException(ApiEc.UserNotFound)
@@ -29,6 +31,7 @@ export class SessionsService {
             throw new ApiException(ApiEc.PasswordNotMatch)
         };
 
-        return true; // session olusturup burdan devam edilecek , session veritabanı yapılmadı.
+        return userr;
+
     }
 }

@@ -7,9 +7,10 @@ import { SessionsModule } from '../sessions/sessions.module';
 import { MailModule } from 'src/mail/mail.module';
 import { JwtService } from '@nestjs/jwt';
 
+
 @Module({
   imports: [UserModule, SessionsModule, MailModule],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService, JwtService],
+  providers: [AuthService, PrismaService,JwtService],
 })
 export class AuthModule {}

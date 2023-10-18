@@ -4,13 +4,18 @@ import { User, Prisma } from '@prisma/client';
 import { ApiEc, ApiException } from 'src/exceptions';
 import { CredsService } from 'src/services/creds/creds.service';
 import { verify } from 'crypto';
+import { JwtService } from '@nestjs/jwt';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class UserService {
   constructor(
     private prisma: PrismaService,
     private credsService: CredsService,
-  ) {}
+    private jwtService: JwtService,
+    private mailService: MailService,
+
+  ) { }
 
   async getUserByEmail(email: string): Promise<any> {
     return await this.prisma.user.findUnique({ where: { email } });
@@ -29,6 +34,12 @@ export class UserService {
       data,
     });
 
+    const token = await this.jwtService.signAsync(
+      { email: newUser.email, id: newUser.id },
+      { expiresIn: '5m', secret: process.env.JWT_SECRET },
+    );
+
+    await this.mailService.sendUserConfirmation(newUser, token);
     return newUser;
   }
 

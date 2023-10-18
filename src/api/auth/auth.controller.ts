@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Query, Param } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query, Param, Session } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Prisma } from '@prisma/client';
 import { AuthSigninRequest, AuthSignupRequest } from './dto';
@@ -11,23 +11,21 @@ export class AuthController {
     private authService: AuthService,
     private mailService: MailService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
 
   @Post('signup')
   async signup(@Body() data: AuthSignupRequest): Promise<any> {
-    const newUser = await this.authService.signup(data);
-    const { email, id } = newUser;
-    const token = await this.jwtService.signAsync(
-      { email, id },
-      { expiresIn: '5m', secret: process.env.JWT_SECRET },
-    );
-    await this.mailService.sendUserConfirmation(newUser, token);
-    return newUser;
+    return await this.authService.signup(data);
   }
 
   @Post('signin')
-  async signin(@Body() data: AuthSigninRequest): Promise<any> {
-    return await this.authService.signin(data);
+  async signin(
+    @Body() data: AuthSigninRequest,
+    @Session() session: Record<string, any>
+  ): Promise<any> {
+    const userrr = await this.authService.signin(data);
+    session.user_id = userrr.id
+    return userrr;
   }
 
   @Get('confirm/:token')
