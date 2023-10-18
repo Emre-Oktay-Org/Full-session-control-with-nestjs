@@ -25,3 +25,22 @@ export class AuthSignupRequest {
   @IsNotEmpty()
   lastName: string;
 }
+
+export class AuthEmailConfirmRequest {
+  @IsEmail()
+  @IsString()
+  @IsNotEmpty()
+  email: string;
+}
+
+export class AuthForgotPasswordRequest {
+  @IsEmail()
+  @IsString()
+  @IsNotEmpty()
+  email: string;
+}
+
+export class AuthResetPasswordRequest {
+  @IsNotEmpty()
+  password: string;
+}

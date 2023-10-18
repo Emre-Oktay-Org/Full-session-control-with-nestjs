@@ -20,4 +20,16 @@ export class MailService {
       },
     });
   }
+  async sendUserForgotPassword(user: User, token: string): Promise<void> {
+    const url = `${process.env.CLIENT_URL}/auth/reset-password?token=${token}`;
+    await this.mailerService.sendMail({
+      to: user.email,
+      subject: 'Reset Password',
+      template: './forgot-password',
+      context: {
+        name: user.firstName,
+        url,
+      },
+    });
+  }
 }

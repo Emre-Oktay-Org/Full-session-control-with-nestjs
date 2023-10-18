@@ -6,10 +6,11 @@ import { UserModule } from '../user/user.module';
 import { SessionsModule } from '../sessions/sessions.module';
 import { MailModule } from 'src/mail/mail.module';
 import { JwtService } from '@nestjs/jwt';
+import { CredsModule } from 'src/services/creds/creds.module';
 
 
 @Module({
-  imports: [UserModule, SessionsModule, MailModule],
+  imports: [UserModule, SessionsModule, MailModule,CredsModule],
   controllers: [AuthController],
   providers: [AuthService, PrismaService,JwtService],
 })
