@@ -8,15 +8,15 @@ import { join } from 'path';
   imports: [
     MailerModule.forRoot({
       transport: {
-        host: 'smtp.example.com',
+        host: process.env.MAIL_HOST,
         secure: false,
         auth: {
-          user: 'user@example.com',
-          pass: 'topsecret',
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
         },
       },
       defaults: {
-        from: '"No Reply" <noreply@example.com>',
+        from: '"No Reply" <test@test.com',
       },
       template: {
         dir: join(__dirname, 'templates'),
