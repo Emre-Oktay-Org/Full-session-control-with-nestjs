@@ -17,14 +17,14 @@ import {
   AuthSignupRequest,
 } from './dto';
 import { MailService } from 'src/mail/mail.service';
-import { JwtService } from '@nestjs/jwt';
+import { JwtService } from 'src/services/jwt/jwt.service';
+
 
 @Controller('auth')
 export class AuthController {
   constructor(
     private authService: AuthService,
-    private mailService: MailService,
-    private jwtService: JwtService,
+    private mailService: MailService
   ) {}
 
   @Post('signup')

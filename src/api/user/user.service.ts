@@ -4,8 +4,8 @@ import { User, Prisma } from '@prisma/client';
 import { ApiEc, ApiException } from 'src/exceptions';
 import { CredsService } from 'src/services/creds/creds.service';
 import { verify } from 'crypto';
-import { JwtService } from '@nestjs/jwt';
 import { MailService } from 'src/mail/mail.service';
+import { JwtService } from 'src/services/jwt/jwt.service';
 
 @Injectable()
 export class UserService {
@@ -34,10 +34,7 @@ export class UserService {
       data,
     });
 
-    const token = await this.jwtService.signAsync(
-      { email: newUser.email, id: newUser.id },
-      { expiresIn: '5m', secret: process.env.JWT_SECRET },
-    );
+    const token = await this.jwtService.createJWT(user.email,user.id);
 
     await this.mailService.sendUserConfirmation(newUser, token);
     return newUser;

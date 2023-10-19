@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/api/auth/auth.module';
 import { SessionsModule } from 'src/api/sessions/sessions.module';
@@ -20,7 +21,8 @@ import { CredsModule } from 'src/services/creds/creds.module';
     AuthModule,
     UserModule,
     CredsModule,
-    MailModule
+    MailModule,
+    JwtModule
   ],
   controllers: [],
   providers: [],

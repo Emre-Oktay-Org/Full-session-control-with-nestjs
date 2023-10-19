@@ -11,9 +11,9 @@ import {
   AuthSigninRequest,
 } from './dto';
 import { SessionsService } from '../sessions/sessions.service';
-import { JwtService } from '@nestjs/jwt';
 import { ApiEc, ApiException } from 'src/exceptions';
 import { MailService } from 'src/mail/mail.service';
+import { JwtService } from 'src/services/jwt/jwt.service';
 
 @Injectable()
 export class AuthService {
@@ -23,12 +23,11 @@ export class AuthService {
     private jwtService: JwtService,
     private mailService: MailService,
     private credsService: CredsService,
-  ) {}
+  ) { }
 
   async UserEmailConfirm(token: string): Promise<any> {
-    const { email, id } = this.jwtService.verify(token, {
-      secret: process.env.JWT_SECRET,
-    });
+
+    const { email, id } = await this.jwtService.verifyJwt(token)
 
     if (!(await this.userService.getUserByEmail(email))) {
       throw new ApiException(ApiEc.UserNotFound);
@@ -64,10 +63,7 @@ export class AuthService {
       throw new ApiException(ApiEc.EmailAlreadyConfirmed);
     }
 
-    const token = await this.jwtService.signAsync(
-      { email: user.email, id: user.id },
-      { expiresIn: '5m', secret: process.env.JWT_SECRET },
-    );
+    const token =  await this.jwtService.createJWT(user.email,user.id);
 
     await this.mailService.sendUserConfirmation(user, token);
     return {
@@ -83,16 +79,7 @@ export class AuthService {
       throw new ApiException(ApiEc.EmailNotConfirmed);
     }
 
-    const token = await this.jwtService.signAsync(
-      {
-        email: user.email,
-        id: user.id,
-      },
-      {
-        expiresIn: '5m',
-        secret: process.env.JWT_FORGOT_PASSWORD_SECRET,
-      },
-    );
+    const token =  await this.jwtService.createJWT(user.email,user.id);
 
     await this.mailService.sendUserForgotPassword(user, token);
     return {
@@ -105,9 +92,7 @@ export class AuthService {
     token: string,
   ): Promise<any> {
     // validate token
-    const { email, id } = this.jwtService.verify(token, {
-      secret: process.env.JWT_FORGOT_PASSWORD_SECRET,
-    });
+    const { email, id } = await this.jwtService.verifyJwt(token)
 
     // check if user exists
     const user = await this.userService.getUserByEmail(email);
