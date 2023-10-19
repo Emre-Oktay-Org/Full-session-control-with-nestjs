@@ -1,11 +1,13 @@
+import { HttpException } from '@nestjs/common';
 import { ApiEc } from './apiec.enum';
 
-export class ApiException extends Error {
+export class ApiException extends HttpException {
   private readonly errorCode: ApiEc;
 
   constructor(errorCode: ApiEc, message?: string) {
-    super(message ?? ApiException.defaultMessageKeyOrErrorCode(errorCode));
+    super(message || ApiException.defaultMessageKeyOrErrorCode(errorCode), 400);
     this.errorCode = errorCode;
+    console.error(this.message);
   }
 
   private static defaultMessageKeyOrErrorCode(errorCode: ApiEc): string {
@@ -36,6 +38,8 @@ export class ApiException extends Error {
         return 'API_ERROR_EMAIL_ALREADY_CONFIRMED';
       case ApiEc.EmailNotConfirmed:
         return 'API_ERROR_EMAIL_NOT_CONFIRMED';
+      case ApiEc.Unauthorized:
+        return 'API_ERROR_UNAUTHORIZED';
     }
   }
 }

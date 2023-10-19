@@ -4,14 +4,17 @@ import { ValidationPipe } from '@nestjs/common';
 import * as session from 'express-session';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: ['error', 'warn', 'debug', 'verbose', 'log'],
+  });
   app.use(
     session({
-      secret: 'my-secret',
+      secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
-      cookie: { maxAge: 60 * 60 * 1000, httpOnly: false, secure: false }
-    }))
+      cookie: { maxAge: 60 * 60 * 1000, httpOnly: false, secure: true },
+    }),
+  );
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000);
 }

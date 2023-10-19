@@ -11,5 +11,6 @@ export enum ApiEc {
   NotAuthorization,
   NotAccept,
   EmailAlreadyConfirmed,
-  EmailNotConfirmed
+  EmailNotConfirmed,
+  Unauthorized,
 }

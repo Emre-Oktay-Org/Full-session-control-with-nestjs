@@ -14,8 +14,7 @@ export class UserService {
     private credsService: CredsService,
     private jwtService: JwtService,
     private mailService: MailService,
-
-  ) { }
+  ) {}
 
   async getUserByEmail(email: string): Promise<any> {
     return await this.prisma.user.findUnique({ where: { email } });
@@ -34,7 +33,7 @@ export class UserService {
       data,
     });
 
-    const token = await this.jwtService.createJWT(user.email,user.id);
+    const token = await this.jwtService.createJWT(user.email, user.id);
 
     await this.mailService.sendUserConfirmation(newUser, token);
     return newUser;
@@ -44,5 +43,12 @@ export class UserService {
     return await this.prisma.user.update({ where: { id }, data });
   }
 
-  
+  async getUserById(id: number): Promise<User> {
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (!user) {
+      throw new ApiException(ApiEc.UserNotFound);
+    }
+    delete user.password;
+    return user;
+  }
 }
