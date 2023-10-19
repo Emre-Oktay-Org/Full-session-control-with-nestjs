@@ -70,6 +70,7 @@ export class AuthService {
       message: 'Email sent',
     };
   }
+  
   async forgotPassword(data: AuthForgotPasswordRequest): Promise<any> {
     const user = await this.userService.getUserByEmail(data.email);
     if (!user) {
