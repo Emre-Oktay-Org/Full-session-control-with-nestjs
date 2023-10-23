@@ -59,7 +59,7 @@ export class AuthController {
 
   @Get('confirm/:token')
   async confirm(@Param('token') token: string): Promise<any> {
-    return await this.authService.UserEmailConfirm(token);
+    return await this.authService.userEmailConfirm(token);
   }
 
   @Post('email-confirm')
