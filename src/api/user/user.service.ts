@@ -6,6 +6,7 @@ import { CredsService } from 'src/services/creds/creds.service';
 import { verify } from 'crypto';
 import { MailService } from 'src/mail/mail.service';
 import { JwtService } from 'src/services/jwt/jwt.service';
+import { AuthSiginInRequest, AuthSisgnUpSuccessResponse } from '../auth/dto';
 
 @Injectable()
 export class UserService {
@@ -14,13 +15,13 @@ export class UserService {
     private credsService: CredsService,
     private jwtService: JwtService,
     private mailService: MailService,
-  ) {}
+  ) { }
 
   async getUserByEmail(email: string): Promise<User> {
     return await this.prisma.user.findUnique({ where: { email } });
   }
 
-  async createUserByEmail(data: Prisma.UserCreateInput): Promise<any> {
+  async createUserByEmail(data: Prisma.UserCreateInput): Promise<AuthSisgnUpSuccessResponse> {
     const { firstName, lastName, email, password } = data;
 
     const user = await this.getUserByEmail(email);
@@ -33,10 +34,30 @@ export class UserService {
       data,
     });
 
-    const token = await this.jwtService.createJWT(user.email, user.id);
-
+    const token = await this.jwtService.createEmailConfirmToken(newUser.email);
+    const accsessToken = await this.jwtService.createSessionJWT(newUser.email, newUser.id);
     await this.mailService.sendUserConfirmation(newUser, token);
-    return newUser;
+    return accsessToken;
+  }
+
+  async userSignIn(data: AuthSiginInRequest): Promise<AuthSisgnUpSuccessResponse> {
+    const { email, password } = data;
+    if (!(await this.getUserByEmail(email))) {
+      throw new ApiException(ApiEc.UserNotFound)
+    }
+
+    const user = await this.prisma.user.findUnique({ where: { email } });
+
+    if (user.email_confirmed == false) {
+      throw new ApiException(ApiEc.NotAccept)
+    }
+
+    if (!(await this.credsService.passwordMatch(password, user.password))) {
+      throw new ApiException(ApiEc.PasswordNotMatch)
+    };
+
+    const token = await this.jwtService.createSessionJWT(user.email, user.id);
+    return token;
   }
 
   async updateUserById(id: number, data: Prisma.UserUpdateInput): Promise<any> {
@@ -51,4 +72,5 @@ export class UserService {
     delete user.password;
     return user;
   }
+  
 }

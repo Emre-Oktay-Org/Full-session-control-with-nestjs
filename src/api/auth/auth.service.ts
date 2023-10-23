@@ -9,6 +9,7 @@ import {
   AuthForgotPasswordRequest,
   AuthResetPasswordRequest,
   AuthSigninRequest,
+  AuthSisgnUpSuccessResponse,
 } from './dto';
 import { SessionsService } from '../sessions/sessions.service';
 import { ApiEc, ApiException } from 'src/exceptions';
@@ -24,6 +25,10 @@ export class AuthService {
     private mailService: MailService,
     private credsService: CredsService,
   ) {}
+  
+  async signup(data: Prisma.UserCreateInput): Promise<AuthSisgnUpSuccessResponse> {
+    return await this.userService.createUserByEmail(data);
+  }
 
   async userEmailConfirm(token: string): Promise<any> {
     const { email } = await this.jwtService.verifyEmailConfirmToken(token);
@@ -44,12 +49,8 @@ export class AuthService {
     throw new ApiException(ApiEc.EmailNotConfirmed);
   }
 
-  async signup(data: Prisma.UserCreateInput): Promise<any> {
-    return await this.userService.createUserByEmail(data);
-  }
-
-  async signin(data: AuthSigninRequest): Promise<any> {
-    return await this.sessionService.createUserSession(data);
+  async signIn(data: AuthSigninRequest): Promise<AuthSisgnUpSuccessResponse> {
+    return await this.userService.userSignIn(data);
   }
 
   async emailConfirm(data: AuthEmailConfirmRequest): Promise<any> {
@@ -111,4 +112,5 @@ export class AuthService {
       message: 'Password updated',
     };
   }
+  
 }

@@ -3,7 +3,8 @@ import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class JwtService {
-  async createJWT(email: string, id: number): Promise<any> {
+
+  async createSessionJWT(email: string, id: number): Promise<any> {
     return jwt.sign({ email, id }, process.env.JWT_SECRET, {
       expiresIn: '30m',
     });

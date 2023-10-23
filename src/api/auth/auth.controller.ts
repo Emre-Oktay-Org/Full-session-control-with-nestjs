@@ -6,6 +6,9 @@ import {
   Query,
   Param,
   Session,
+  Headers,
+  UseGuards,
+  Request
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Prisma } from '@prisma/client';
@@ -13,33 +16,38 @@ import {
   AuthEmailConfirmRequest,
   AuthForgotPasswordRequest,
   AuthResetPasswordRequest,
+  AuthSiginInRequest,
   AuthSigninRequest,
   AuthSignupRequest,
+  AuthSisgnUpSuccessResponse,
 } from './dto';
 import { MailService } from 'src/mail/mail.service';
 import { JwtService } from 'src/services/jwt/jwt.service';
+import { ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from 'src/guards/auth.guard';
 
 
 @Controller('auth')
+@ApiTags("Auth")
 export class AuthController {
   constructor(
     private authService: AuthService,
     private mailService: MailService
-  ) {}
+  ) { }
 
   @Post('signup')
-  async signup(@Body() data: AuthSignupRequest): Promise<any> {
+  async signup(@Body() data: AuthSignupRequest
+  ): Promise<AuthSisgnUpSuccessResponse> {
     return await this.authService.signup(data);
   }
 
   @Post('signin')
-  async signin(
-    @Body() data: AuthSigninRequest,
-    @Session() session: Record<string, any>,
-  ): Promise<any> {
-    const userrr = await this.authService.signin(data);
-    session.user_id = userrr.id;
-    return userrr;
+  async signIn(
+    @Body() data: AuthSiginInRequest,
+    @Request() req
+  ): Promise<AuthSisgnUpSuccessResponse> {
+    const token = await this.authService.signIn(data);
+    return token;
   }
 
   @Get('signout')

@@ -20,6 +20,7 @@ model User {
   created_at      DateTime      @default(now())
   updated_at      DateTime      @default(now()) @updatedAt
   SignAttempt     SignAttempt[]
+  UsersIp         UsersIp[]
 }
 
 model SignAttempt {
@@ -30,4 +31,11 @@ model SignAttempt {
   success    Boolean
   created_at DateTime @default(now())
   updated_at DateTime @default(now()) @updatedAt
+}
+
+model UsersIp {
+  id         Int    @id @default(autoincrement())
+  user_id    Int
+  user       User   @relation(fields: [user_id], references: [id])
+  ip_address String
 }
