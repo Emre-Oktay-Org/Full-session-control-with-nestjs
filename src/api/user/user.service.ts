@@ -16,7 +16,7 @@ export class UserService {
     private mailService: MailService,
   ) {}
 
-  async getUserByEmail(email: string): Promise<any> {
+  async getUserByEmail(email: string): Promise<User> {
     return await this.prisma.user.findUnique({ where: { email } });
   }
 

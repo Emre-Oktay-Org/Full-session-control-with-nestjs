@@ -23,26 +23,25 @@ export class AuthService {
     private jwtService: JwtService,
     private mailService: MailService,
     private credsService: CredsService,
-  ) { }
+  ) {}
 
-  async UserEmailConfirm(token: string): Promise<any> {
-
-    const { email, id } = await this.jwtService.verifyJwt(token)
-
-    if (!(await this.userService.getUserByEmail(email))) {
+  async userEmailConfirm(token: string): Promise<any> {
+    const { email } = await this.jwtService.verifyEmailConfirmToken(token);
+    const user = await this.userService.getUserByEmail(email);
+    if (!user) {
       throw new ApiException(ApiEc.UserNotFound);
     }
 
-    const updatedUser = await this.userService.updateUserById(id, {
+    const updatedUser = await this.userService.updateUserById(user.id, {
       email_confirmed: true,
     });
-    if (!updatedUser.email_confirmed) {
-      throw new ApiException(ApiEc.UserNotFound);
+    if (updatedUser.email_confirmed) {
+      return {
+        message: 'Email confirmed',
+      };
     }
 
-    return {
-      message: 'Email confirmed',
-    };
+    throw new ApiException(ApiEc.EmailNotConfirmed);
   }
 
   async signup(data: Prisma.UserCreateInput): Promise<any> {
@@ -63,7 +62,7 @@ export class AuthService {
       throw new ApiException(ApiEc.EmailAlreadyConfirmed);
     }
 
-    const token =  await this.jwtService.createJWT(user.email,user.id);
+    const token = await this.jwtService.createEmailConfirmToken(user.email);
 
     await this.mailService.sendUserConfirmation(user, token);
     return {
@@ -79,7 +78,7 @@ export class AuthService {
       throw new ApiException(ApiEc.EmailNotConfirmed);
     }
 
-    const token =  await this.jwtService.createJWT(user.email,user.id);
+    const token = await this.jwtService.createResetPasswordToken(user.email);
 
     await this.mailService.sendUserForgotPassword(user, token);
     return {
@@ -92,7 +91,7 @@ export class AuthService {
     token: string,
   ): Promise<any> {
     // validate token
-    const { email, id } = await this.jwtService.verifyJwt(token)
+    const { email } = await this.jwtService.verifyResetPasswordToken(token);
 
     // check if user exists
     const user = await this.userService.getUserByEmail(email);
@@ -103,7 +102,7 @@ export class AuthService {
 
     // update user password
     const hashedPassword = await this.credsService.passwordHash(data.password);
-    const updatedUser = await this.userService.updateUserById(id, {
+    const updatedUser = await this.userService.updateUserById(user.id, {
       password: hashedPassword,
     });
 
