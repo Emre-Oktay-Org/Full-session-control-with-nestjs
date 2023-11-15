@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsOptional, IsEmail } from 'class-validator';
+import { IsString, IsNotEmpty, IsOptional, IsEmail,Length } from 'class-validator';
 
 export class AuthSigninRequest {
   @IsEmail()
@@ -9,6 +9,7 @@ export class AuthSigninRequest {
   email: string;
 
   @IsNotEmpty()
+  @Length(6,12, {message:"Şifre En az6 en fazla 12 karakter olmalıdır"})
   password: string;
 }
 

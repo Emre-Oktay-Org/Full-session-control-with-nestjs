@@ -8,6 +8,14 @@ export class CredsService {
         return await bcrypt.hash("asddfasdasd" + password, 10);
     }
 
+    async isPasswordStrong(password:string):Promise<boolean>{
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasSpecialCharacter = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+        const hasNumericDigit = /\d/.test(password);
+        return hasUpperCase && hasLowerCase && hasSpecialCharacter && hasNumericDigit;
+    }
+
     async passwordMatch(password:string,hashed):Promise<boolean>{
         return await bcrypt.compare("asddfasdasd" + password,hashed)
     }

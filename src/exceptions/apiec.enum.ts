@@ -13,4 +13,6 @@ export enum ApiEc {
   EmailAlreadyConfirmed,
   EmailNotConfirmed,
   Unauthorized,
+  PasswordNotStrong,
+  PasswordLength
 }

@@ -24,8 +24,9 @@ export class AuthService {
     private jwtService: JwtService,
     private mailService: MailService,
     private credsService: CredsService,
-  ) {}
-  
+  ) { }
+
+
   async signup(data: Prisma.UserCreateInput): Promise<AuthSisgnUpSuccessResponse> {
     return await this.userService.createUserByEmail(data);
   }
@@ -49,8 +50,8 @@ export class AuthService {
     throw new ApiException(ApiEc.EmailNotConfirmed);
   }
 
-  async signIn(data: AuthSigninRequest): Promise<AuthSisgnUpSuccessResponse> {
-    return await this.userService.userSignIn(data);
+  async signIn(data: AuthSigninRequest): Promise<any> {
+    await this.userService.userSignIn(data);
   }
 
   async emailConfirm(data: AuthEmailConfirmRequest): Promise<any> {
@@ -70,7 +71,7 @@ export class AuthService {
       message: 'Email sent',
     };
   }
-  
+
   async forgotPassword(data: AuthForgotPasswordRequest): Promise<any> {
     const user = await this.userService.getUserByEmail(data.email);
     if (!user) {
@@ -112,5 +113,9 @@ export class AuthService {
       message: 'Password updated',
     };
   }
-  
+
+
 }
+
+
+

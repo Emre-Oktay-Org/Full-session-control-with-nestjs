@@ -21,6 +21,7 @@ model User {
   updated_at      DateTime      @default(now()) @updatedAt
   SignAttempt     SignAttempt[]
   UsersIp         UsersIp[]
+  blackList BlackList[]
 }
 
 model SignAttempt {
@@ -38,4 +39,10 @@ model UsersIp {
   user_id    Int
   user       User   @relation(fields: [user_id], references: [id])
   ip_address String
+}
+
+model BlackList {
+  id Int    @id @default(autoincrement())
+  user_id Int
+  user   User   @relation(fields: [user_id], references: [id])
 }

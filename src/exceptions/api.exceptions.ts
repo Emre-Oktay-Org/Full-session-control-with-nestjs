@@ -40,6 +40,11 @@ export class ApiException extends HttpException {
         return 'API_ERROR_EMAIL_NOT_CONFIRMED';
       case ApiEc.Unauthorized:
         return 'API_ERROR_UNAUTHORIZED';
+      case ApiEc.PasswordNotStrong:
+        return 'API_ERROR_PASSWORD_NOT_STRONG';
+      case ApiEc.PasswordLength:
+        return 'API_ERROR_PASSWORD_LENGTH'  
+
     }
   }
 }
