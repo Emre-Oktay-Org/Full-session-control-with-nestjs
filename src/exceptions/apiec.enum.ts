@@ -14,5 +14,6 @@ export enum ApiEc {
   EmailNotConfirmed,
   Unauthorized,
   PasswordNotStrong,
-  PasswordLength
+  PasswordLength,
+  AccountBloced
 }

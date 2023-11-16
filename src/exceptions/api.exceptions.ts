@@ -43,7 +43,9 @@ export class ApiException extends HttpException {
       case ApiEc.PasswordNotStrong:
         return 'API_ERROR_PASSWORD_NOT_STRONG';
       case ApiEc.PasswordLength:
-        return 'API_ERROR_PASSWORD_LENGTH'  
+        return 'API_ERROR_PASSWORD_LENGTH';
+      case ApiEc.AccountBloced:
+        return 'API_ERROR_ACCOUNT_BLOCED'
 
     }
   }

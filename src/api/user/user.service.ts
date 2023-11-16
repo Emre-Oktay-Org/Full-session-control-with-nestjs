@@ -54,14 +54,14 @@ export class UserService {
   async userSignIn(data: AuthSiginInRequest): Promise<AuthSisgnUpSuccessResponse> {
     const { email, password } = data;
 
-    if (this.isAccountLocked(email)) {
-      throw new ApiException(ApiEc.UserNotFound) // Hesap kitli hatası dönder
-    }
-
     if (!(await this.getUserByEmail(email))) {
-      this.trackFailedLogin(email);
       throw new ApiException(ApiEc.UserNotFound)
     }
+
+    if (await this.isAccountLocked(email)) {
+      throw new ApiException(ApiEc.AccountBloced)
+    }
+
     const user = await this.prisma.user.findUnique({ where: { email } });
 
     if (user.email_confirmed == false) {
@@ -69,13 +69,13 @@ export class UserService {
     }
 
     if (!(await this.credsService.passwordMatch(password, user.password))) {
-      this.trackFailedLogin(email);
+      await this.trackFailedLogin(email);
       throw new ApiException(ApiEc.PasswordNotMatch)
     };
 
-    this.resetFailedLoginAttempts(email);
+    await this.resetFailedLoginAttempts(email);
     const token = await this.jwtService.createSessionJWT(user.email, user.id);
-    return token;
+    return await token;
   }
 
   async updateUserById(id: number, data: Prisma.UserUpdateInput): Promise<any> {
@@ -93,35 +93,39 @@ export class UserService {
 
 
 
-  private isAccountLocked(email: string): boolean {
-    // Hesap kilitli mi kontrolü
+  private async isAccountLocked(email: string) {
+    // Hesap kilitli mi kontrolüü
+    const findUser = await this.getUserByEmail(email);
+    const findBlack = await this.prisma.blackList.findFirst({ where: { user_id: findUser.id } });
+    if (findBlack) {
+      return true;
+    }
     const attempts = this.loginAttempts.get(email) || 0;
     return attempts >= this.maxLoginAttempts;
   }
 
-  private trackFailedLogin(email: string): void {
+  private async trackFailedLogin(email: string) {
     // Başarısız giriş denemesini takip et
     const attempts = this.loginAttempts.get(email) || 0;
     this.loginAttempts.set(email, attempts + 1);
-
+    console.log(attempts);
+    
     // Eğer belirli bir sayıda başarısız giriş denemesi yapılırsa, hesabı kilitle
     if (attempts + 1 >= this.maxLoginAttempts) {
-      this.lockAccount(email);
+      await this.lockAccount(email);
     }
   }
 
   private async lockAccount(email: string) {
-    // Hesabı burada kilitle veritabanından
-    // const user = await this.getUserByEmail(email);
-    // await this.prisma.blackList.create({
-    //   user_id:user.id
-    // })
-    // console.log(`Hesap kilitlendi: ${email}`);
+    const user = await this.getUserByEmail(email);
+    await this.prisma.blackList.create({
+      data: { user_id: user.id }
+    })
+    console.log(`Hesap kilitlendi: ${email}`);
   }
 
-  private resetFailedLoginAttempts(email: string): void {
-    // Başarılı giriş durumunda başarısız giriş denemelerini sıfırla
-    this.loginAttempts.delete(email);
+  private async resetFailedLoginAttempts(email: string) {
+    await this.loginAttempts.delete(email);
   }
 
 }
