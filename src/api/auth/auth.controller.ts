@@ -8,7 +8,8 @@ import {
   Session,
   Headers,
   UseGuards,
-  Request
+  Request,
+  Req
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Prisma } from '@prisma/client';
@@ -64,6 +65,8 @@ export class AuthController {
     // destroy session
     return session;
   }
+
+
 
   @Get('confirm/:token')
   async confirm(@Param('token') token: string): Promise<any> {
