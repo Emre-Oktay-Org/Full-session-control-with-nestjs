@@ -18,9 +18,6 @@ export class UserService {
   ) { }
 
 
-  private readonly loginAttempts = new Map<string, number>();
-  private readonly maxLoginAttempts = 3;
-
   async getUserByEmail(email: string): Promise<User> {
     return await this.prisma.user.findUnique({ where: { email } });
   }
@@ -58,9 +55,6 @@ export class UserService {
       throw new ApiException(ApiEc.UserNotFound)
     }
 
-    if (await this.isAccountLocked(email)) {
-      throw new ApiException(ApiEc.AccountBloced)
-    }
 
     const user = await this.prisma.user.findUnique({ where: { email } });
 
@@ -69,11 +63,9 @@ export class UserService {
     }
 
     if (!(await this.credsService.passwordMatch(password, user.password))) {
-      await this.trackFailedLogin(email);
       throw new ApiException(ApiEc.PasswordNotMatch)
     };
 
-    await this.resetFailedLoginAttempts(email);
     const token = await this.jwtService.createSessionJWT(user.email, user.id);
     return await token;
   }
@@ -91,41 +83,5 @@ export class UserService {
     return user;
   }
 
-
-
-  private async isAccountLocked(email: string) {
-    // Hesap kilitli mi kontrolüü
-    const findUser = await this.getUserByEmail(email);
-    const findBlack = await this.prisma.blackList.findFirst({ where: { user_id: findUser.id } });
-    if (findBlack) {
-      return true;
-    }
-    const attempts = this.loginAttempts.get(email) || 0;
-    return attempts >= this.maxLoginAttempts;
-  }
-
-  private async trackFailedLogin(email: string) {
-    // Başarısız giriş denemesini takip et
-    const attempts = this.loginAttempts.get(email) || 0;
-    this.loginAttempts.set(email, attempts + 1);
-    console.log(attempts);
-    
-    // Eğer belirli bir sayıda başarısız giriş denemesi yapılırsa, hesabı kilitle
-    if (attempts + 1 >= this.maxLoginAttempts) {
-      await this.lockAccount(email);
-    }
-  }
-
-  private async lockAccount(email: string) {
-    const user = await this.getUserByEmail(email);
-    await this.prisma.blackList.create({
-      data: { user_id: user.id }
-    })
-    console.log(`Hesap kilitlendi: ${email}`);
-  }
-
-  private async resetFailedLoginAttempts(email: string) {
-    await this.loginAttempts.delete(email);
-  }
 
 }

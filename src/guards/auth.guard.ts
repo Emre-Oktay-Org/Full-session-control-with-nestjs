@@ -14,6 +14,7 @@ export class AuthGuard implements CanActivate {
     private jwtService: JwtService,
     private userService: UserService
   ) { }
+
   async canActivate(
     context: ExecutionContext,
   ): Promise<any> {
@@ -35,4 +36,5 @@ export class AuthGuard implements CanActivate {
     request.user = user;
     return true;
   }
+  
 }

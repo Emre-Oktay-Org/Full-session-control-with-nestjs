@@ -15,5 +15,6 @@ export enum ApiEc {
   Unauthorized,
   PasswordNotStrong,
   PasswordLength,
-  AccountBloced
+  AccountBloced,
+  RateLimitError
 }

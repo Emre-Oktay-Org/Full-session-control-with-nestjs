@@ -45,7 +45,9 @@ export class ApiException extends HttpException {
       case ApiEc.PasswordLength:
         return 'API_ERROR_PASSWORD_LENGTH';
       case ApiEc.AccountBloced:
-        return 'API_ERROR_ACCOUNT_BLOCED'
+        return 'API_ERROR_ACCOUNT_BLOCED';
+      case ApiEc.RateLimitError:
+        return 'API_ERROR_RATE_LIMIT_ERROR';  
 
     }
   }

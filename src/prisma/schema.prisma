@@ -10,39 +10,46 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum BlackListType {
+  LOGIN
+  REGISTER
+}
+
 model User {
-  id              Int           @id @default(autoincrement())
-  firstName       String        @db.VarChar(25)
-  lastName        String        @db.VarChar(25)
-  email           String        @unique
+  id              Int      @id @default(autoincrement())
+  firstName       String   @db.VarChar(25)
+  lastName        String   @db.VarChar(25)
+  email           String   @unique
   password        String
-  email_confirmed Boolean       @default(false)
-  created_at      DateTime      @default(now())
-  updated_at      DateTime      @default(now()) @updatedAt
-  SignAttempt     SignAttempt[]
-  UsersIp         UsersIp[]
-  blackList BlackList[]
+  email_confirmed Boolean  @default(false)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @default(now()) @updatedAt
 }
 
-model SignAttempt {
+model SignInRequests {
   id         Int      @id @default(autoincrement())
-  user_id    Int
-  user       User     @relation(fields: [user_id], references: [id])
-  ip_address String
-  success    Boolean
-  created_at DateTime @default(now())
-  updated_at DateTime @default(now()) @updatedAt
+  user_agent String
+  origin     String
+  user_ip    String
+  counter    Int
+  email      String
+  expired_at DateTime
 }
 
-model UsersIp {
-  id         Int    @id @default(autoincrement())
-  user_id    Int
-  user       User   @relation(fields: [user_id], references: [id])
-  ip_address String
+model SignUpRequests {
+  id         Int      @id @default(autoincrement())
+  user_agent String
+  origin     String
+  user_ip    String
+  counter    Int
+  expired_at DateTime
 }
 
 model BlackList {
-  id Int    @id @default(autoincrement())
-  user_id Int
-  user   User   @relation(fields: [user_id], references: [id])
+  id             Int           @id @default(autoincrement())
+  user_ip        String
+  expired_at     DateTime
+  blacklisetType BlackListType
+  user_agent     String
+  email          String?
 }

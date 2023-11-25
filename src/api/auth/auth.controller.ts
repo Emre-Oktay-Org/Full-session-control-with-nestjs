@@ -8,6 +8,7 @@ import {
   Session,
   Headers,
   UseGuards,
+  Ip,
   Request,
   Req
 } from '@nestjs/common';
@@ -37,17 +38,25 @@ export class AuthController {
   ) { }
 
   @Post('signup')
-  async signup(@Body() data: AuthSignupRequest
+  async signup(
+    @Body() data: AuthSignupRequest,
+    @Ip() ip,
+    @Req() request:Request
   ): Promise<AuthSisgnUpSuccessResponse> {
-    return await this.authService.signup(data);
+    const user_agent = request.headers["user-agent"];
+    const origin = request.headers["host"];
+    return await this.authService.signup(data,ip,user_agent,origin);
   }
 
   @Post('signin')
   async signIn(
     @Body() data: AuthSiginInRequest,
-    @Request() req
+    @Ip() ip,
+    @Req() request : Request
   ): Promise<AuthSisgnUpSuccessResponse> {
-    const token = await this.authService.signIn(data);
+    const user_agent = request.headers["user-agent"];
+    const origin = request.headers["host"];
+    const token = await this.authService.signIn(data,ip,user_agent,origin);
     return token;
   }
 
@@ -61,12 +70,9 @@ export class AuthController {
   }
 
   @Get('')
-  async gett(@Session() session: Record<string, any>): Promise<any> {
-    // destroy session
-    return session;
+  async gett(@Session() session: Record<string, any>,@Ip() ip,    @Req() request:Request): Promise<any> {
+    return ip;
   }
-
-
 
   @Get('confirm/:token')
   async confirm(@Param('token') token: string): Promise<any> {
