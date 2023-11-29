@@ -69,10 +69,6 @@ export class AuthController {
     };
   }
 
-  @Get('')
-  async gett(@Session() session: Record<string, any>,@Ip() ip,    @Req() request:Request): Promise<any> {
-    return ip;
-  }
 
   @Get('confirm/:token')
   async confirm(@Param('token') token: string): Promise<any> {
